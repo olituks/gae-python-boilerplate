@@ -3,7 +3,6 @@
 import os
 import sys
 import webapp2
-import jinja2
 import logging
 import json
 
@@ -11,11 +10,6 @@ from google.appengine.ext import ndb
 from google.appengine.api import mail
 
 from google.appengine.ext.webapp import template
-
-JINJA_ENVIRONMENT = jinja2.Environment(
-  autoescape=True,
-  loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
-)
 
 class PageHandler(webapp2.RequestHandler):
 
