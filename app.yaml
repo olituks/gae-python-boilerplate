@@ -13,5 +13,17 @@ libraries:
   version: latest
 
 handlers:
+- url: /signup
+  script: authentication.app
+  secure: always
+
+- url: /login
+  script: authentication.app
+  secure: always
+
+- url: /forgot
+  script: authentication.app
+  secure: always
+
 - url: /.*
   script: main.app
