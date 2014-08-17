@@ -6,6 +6,7 @@ from google.appengine.ext import ndb
 import logging
 import os.path
 import webapp2
+import json
 
 from webapp2_extras import auth
 from webapp2_extras import sessions
@@ -103,25 +104,30 @@ class MainHandler(BaseHandler):
   def get(self):
     self.render_template('home.html')
 
+
+
+#-------------------------------------
+#-    SignupHandler
+#-------------------------------------
 class SignupHandler(BaseHandler):
-  def get(self):
-    self.render_template('signup.html')
 
   def post(self):
-    user_name = self.request.get('username')
-    email = self.request.get('email')
-    name = self.request.get('name')
-    password = self.request.get('password')
-    last_name = self.request.get('lastname')
+    self.response.headers.add_header('Access-Control-Allow-Origin', '*')
+    self.response.headers['Content-Type'] = 'application/json'
+    
+    my_json = json.loads(self.request.POST.get("datas"))
+    
+    user_name = my_json["username"].encode("utf-8")
+    email = my_json["email"].encode("utf-8")
+    password = my_json["password"].encode("utf-8")
+    name = my_json["name"].encode("utf-8")
+    last_name = my_json["lastname"].encode("utf-8")
 
     unique_properties = ['email_address']
-    user_data = self.user_model.create_user(user_name,
-      unique_properties,
-      email_address=email, name=name, password_raw=password,
-      last_name=last_name, verified=False)
+    user_data = self.user_model.create_user(user_name, unique_properties, email_address=email, name=name, password_raw=password, last_name=last_name, verified=False)
     if not user_data[0]: #user_data is a tuple
-      self.display_message('Unable to create user for email %s because of \
-        duplicate keys %s' % (user_name, user_data[1]))
+      #self.display_message('Unable to create user for username %s because of duplicate keys %s' % (user_name, user_data[1]))
+      self.response.out.write('Unable to create user for username %s because of duplicate keys %s' % (user_name, user_data[1]))
       return
     
     user = user_data[1]
@@ -129,13 +135,12 @@ class SignupHandler(BaseHandler):
 
     token = self.user_model.create_signup_token(user_id)
 
-    verification_url = self.uri_for('verification', type='v', user_id=user_id,
-      signup_token=token, _full=True)
+    verification_url = self.uri_for('verification', type='v', user_id=user_id, signup_token=token, _full=True)
 
-    msg = 'Send an email to user in order to verify their address. \
-          They will be able to do so by visiting <a href="{url}">{url}</a>'
+    msg = 'Send an email to user in order to verify their address. They will be able to do so by visiting <a href="{url}">{url}</a>'
 
-    self.display_message(msg.format(url=verification_url))
+    # self.display_message(msg.format(url=verification_url))
+    self.response.out.write(msg.format(url=verification_url))
 
 class ForgotPasswordHandler(BaseHandler):
   def get(self):
@@ -168,7 +173,6 @@ class ForgotPasswordHandler(BaseHandler):
       'not_found': not_found
     }
     self.render_template('forgot.html', params)
-
 
 class VerificationHandler(BaseHandler):
   def get(self, *args, **kwargs):

@@ -24,7 +24,8 @@ if 'lib' not in sys.path:
 # Map URLs to handlers
 routes = [
   # home Page.
-  Route(r'/savedata', handler='handlers.PageHandler:savedata', name='savedata')
+  Route(r'/signin', handler='handlers.PageHandler:signin', name='signin'),
+  Route(r'/signup', handler='handlers.PageHandler:signup', name='signup')
 ]
 
 app = webapp2.WSGIApplication(routes, debug=DEBUG, config=config)
